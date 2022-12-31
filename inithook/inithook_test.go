@@ -2,6 +2,7 @@ package inithook_test
 
 import (
 	"context"
+	"encoding/json"
 	"testing"
 
 	"github.com/ccmonky/pkg/inithook"
@@ -34,7 +35,10 @@ func TestInitHook(t *testing.T) {
 		t.Fatal(err)
 	}
 	// e.g. in app
-	err = inithook.ExecuteAttrSetters(context.Background(), inithook.AppName, "xxx")
+	data := map[string]json.RawMessage{
+		inithook.AppName: []byte(`"xxx"`),
+	}
+	err = inithook.ExecuteAllAttrSetters(context.Background(), data)
 	if err != nil {
 		t.Fatal(err)
 	}
