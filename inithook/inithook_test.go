@@ -38,7 +38,7 @@ func TestInitHook(t *testing.T) {
 	data := map[string]json.RawMessage{
 		inithook.AppName: []byte(`"xxx"`),
 	}
-	err = inithook.ExecuteAllAttrSetters(context.Background(), data)
+	err = inithook.ExecuteMapAttrSetters(context.Background(), data)
 	if err != nil {
 		t.Fatal(err)
 	}

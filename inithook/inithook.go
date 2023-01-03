@@ -8,6 +8,10 @@ import (
 	"sync"
 )
 
+// used for doc
+type Attr = string
+type SetterName = string
+
 // some builtin attrs
 const (
 	AppName = "app_name"
@@ -19,7 +23,7 @@ type AttrSetter[T any] func(ctx context.Context, value T) error
 
 // RegisterAttrSetter used to register AttrSetter, and should be used in library init
 // NOTE: the execution order of setters cannot be guaranteed!
-func RegisterAttrSetter[T any](attr, name string, setter AttrSetter[T]) error {
+func RegisterAttrSetter[T any](attr, setterName string, setter AttrSetter[T]) error {
 	if setter == nil {
 		return fmt.Errorf("inithook: nil attr setter")
 	}
@@ -30,16 +34,20 @@ func RegisterAttrSetter[T any](attr, name string, setter AttrSetter[T]) error {
 	attrConstructorsLock.Unlock()
 	settersLock.Lock()
 	if setters[attr] == nil {
-		setters[attr] = map[setterName]any{}
+		setters[attr] = map[SetterName]any{}
 	}
-	setters[attr][name] = genericAttrSetter(func(ctx context.Context, value any) error {
-		return setter(ctx, value.(T))
+	setters[attr][setterName] = genericAttrSetter(func(ctx context.Context, value any) error {
+		if typed, ok := value.(T); ok {
+			return setter(ctx, typed)
+		}
+		return fmt.Errorf("attr %s setter value type should be %T but got %T", attr, *new(T), value)
 	})
 	settersLock.Unlock()
 	return nil
 }
 
-func ExecuteAllAttrSetters(ctx context.Context, attrsData map[attr]json.RawMessage) error {
+// ExecuteMapAttrSetters execute a map of attr setters with json format value, used in app code
+func ExecuteMapAttrSetters(ctx context.Context, attrsData map[Attr]json.RawMessage) error {
 	for attr, data := range attrsData {
 		fn := GetAttrConstructor(attr)
 		if fn == nil {
@@ -58,19 +66,19 @@ func ExecuteAllAttrSetters(ctx context.Context, attrsData map[attr]json.RawMessa
 	return nil
 }
 
-// ExecuteAttrSetters execute attr setters
-func ExecuteAttrSetters[T any](ctx context.Context, attr string, value T) error {
+// ExecuteAttrSetters execute attr setters, used in app code
+func ExecuteAttrSetters(ctx context.Context, attr string, value any) error {
 	settersLock.Lock()
 	attrSetters := setters[attr]
 	settersLock.Unlock()
 	for name, setter := range attrSetters {
-		s, ok := setter.(genericAttrSetter)
+		gas, ok := setter.(genericAttrSetter)
 		if !ok {
-			return fmt.Errorf("inithook: attr %s setter %s should be AttrSetter[%T] but got %T", attr, name, *new(T), setter)
+			return fmt.Errorf("inithook: attr %s setter %s should be `func(context.Context, any) error` but got %T", attr, name, setter)
 		}
-		err := s(ctx, value)
+		err := gas(ctx, value)
 		if err != nil {
-			return fmt.Errorf("inithook: attr %s setters %s executed failed: %v", attr, name, setter)
+			return fmt.Errorf("inithook: attr %s setters %s executed failed: %v", attr, name, err)
 		}
 	}
 	settersUsedLock.Lock()
@@ -79,9 +87,9 @@ func ExecuteAttrSetters[T any](ctx context.Context, attr string, value T) error 
 	return nil
 }
 
-// AttrsNotSetted return a slice of attr which has not seted, used to alert
-func AttrsNotSetted() []attr {
-	var attrNotUsed []attr
+// AttrsNotSetted return a slice of attr which has not seted, used to alert in app
+func AttrsNotSetted() []Attr {
+	var attrNotUsed []Attr
 	settersLock.Lock()
 	settersUsedLock.Lock()
 	for attr := range setters {
@@ -94,8 +102,9 @@ func AttrsNotSetted() []attr {
 	return attrNotUsed
 }
 
-// NewConstructor returns a constructor which create a new T's instance,
-// and New will indirect reflect.Ptr recursively to ensure not return nil pointer
+// NewConstructor returns a constructor which return a new T's instance constructor
+// which is a new created or a cached constructor, it's used to assist the serialization procedure,
+// and the constructor will indirect reflect.Ptr recursively to ensure not return nil pointer,
 func NewConstructor[T any]() func() any {
 	typ := reflect.TypeOf(new(T)).Elem()
 	constructorsCacheLock.Lock()
@@ -124,6 +133,7 @@ func NewConstructor[T any]() func() any {
 	return fn
 }
 
+// GetAttrConstructor return attr value constructor used to assist the serialization procedure
 func GetAttrConstructor(attr string) func() any {
 	attrConstructorsLock.Lock()
 	defer attrConstructorsLock.Unlock()
@@ -131,17 +141,14 @@ func GetAttrConstructor(attr string) func() any {
 }
 
 var (
-	setters               = map[attr]map[setterName]any{}
+	setters               = map[Attr]map[SetterName]any{}
 	settersLock           sync.Mutex
-	attrConstructors      = map[attr]func() any{}
+	attrConstructors      = map[Attr]func() any{}
 	attrConstructorsLock  sync.Mutex
 	constructorsCache     = map[reflect.Type]func() any{}
 	constructorsCacheLock sync.Mutex
-	settersUsed           = map[attr]struct{}{}
+	settersUsed           = map[Attr]struct{}{}
 	settersUsedLock       sync.Mutex
 )
-
-type attr = string
-type setterName = string
 
 type genericAttrSetter func(ctx context.Context, value any) error
