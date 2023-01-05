@@ -1,8 +1,8 @@
 # inithook
 
-inithook used to register attribute setter, which usually used in library code, for example,
+`inithook` used to register attribute setter, which usually used in library code, for example,
 if a `render` lib need to set `app_name` to fill output fields, and also some others libs need to set `app_name`, 
-thus in these libs, can call `inithook.RegisterAttrSetter` like this: 
+thus in these libs, can call `inithook.RegisterAttrSetter` like this:
 
 ```go
 // e.g. in apierrors lib
