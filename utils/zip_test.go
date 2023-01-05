@@ -1,4 +1,4 @@
-package pkg_test
+package utils_test
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ccmonky/pkg"
+	"github.com/ccmonky/pkg/utils"
 )
 
 func TestUnzipFirst(t *testing.T) {
@@ -19,7 +19,7 @@ func TestUnzipFirst(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	content, err := pkg.UnzipFirst(data)
+	content, err := utils.UnzipFirst(data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,7 +36,7 @@ func TestUnzip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	contents, err := pkg.Unzip(data)
+	contents, err := utils.Unzip(data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -51,11 +51,11 @@ func TestUnzip(t *testing.T) {
 func TestZip(t *testing.T) {
 	file1 := []byte("this is a test")
 	file2 := []byte("this is test 2")
-	zipData, err := pkg.Zip(file1, file2)
+	zipData, err := utils.Zip(file1, file2)
 	if err != nil {
 		t.Fatal(err)
 	}
-	data, err := pkg.Unzip(zipData)
+	data, err := utils.Unzip(zipData)
 	if err != nil {
 		t.Fatal(err)
 	}

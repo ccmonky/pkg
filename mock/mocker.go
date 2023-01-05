@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tidwall/gjson"
 
-	"github.com/ccmonky/pkg"
+	"github.com/ccmonky/pkg/utils"
 	"github.com/ccmonky/typemap"
 )
 
@@ -55,7 +55,7 @@ type ResponseMocker interface {
 
 // Option 描述一些公共行为，如latency
 type Options struct {
-	Latency pkg.Duration `json:"latency"`
+	Latency utils.Duration `json:"latency"`
 }
 
 func UnmarshalResponseMocker(jsonBytes []byte) (ResponseMocker, error) {

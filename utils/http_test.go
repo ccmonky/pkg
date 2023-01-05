@@ -1,4 +1,4 @@
-package pkg_test
+package utils_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ccmonky/pkg"
+	"github.com/ccmonky/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -102,11 +102,11 @@ func TestReadBodyEOFWithBuffer(t *testing.T) {
 }
 
 func TestTryReadByte(t *testing.T) {
-	b, err := pkg.TryBufReadByte(nil)
+	b, err := utils.TryBufReadByte(nil)
 	assert.Equalf(t, uint8(0), b, "first byte")
 	assert.NotNilf(t, err, "nil request")
 
-	b, err = pkg.TryReadByte(nil)
+	b, err = utils.TryReadByte(nil)
 	assert.Equalf(t, uint8(0), b, "first byte")
 	assert.NotNilf(t, err, "nil request")
 }
@@ -118,7 +118,7 @@ func TestBufio(t *testing.T) {
 	data, err := io.ReadAll(r.Body)
 	assert.Nilf(t, err, "read all err")
 	assert.Equalf(t, "12345", string(data), "req body")
-	err = pkg.TryRead(r)
+	err = utils.TryRead(r)
 	assert.Equalf(t, io.EOF, err, "read body err %v", err)
 
 	body = io.NopCloser(bytes.NewBufferString("12345"))
@@ -128,13 +128,13 @@ func TestBufio(t *testing.T) {
 	n, err := r.Body.Read(buf)
 	assert.Nilf(t, err, "read two err")
 	assert.Equalf(t, 2, n, "read two")
-	err = pkg.TryRead(r)
+	err = utils.TryRead(r)
 	assert.Nilf(t, err, "read third byte err")
 	data, err = io.ReadAll(r.Body)
 	assert.Nilf(t, err, "read all err")
 	assert.Equalf(t, "345", string(data), "req body left")
 
-	err = pkg.TryRead(r)
+	err = utils.TryRead(r)
 	assert.Equalf(t, io.EOF, err, "read body err %v", err)
 }
 
@@ -147,7 +147,7 @@ func BenchmarkTryBufRead(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r, _ := http.NewRequest(http.MethodPost, "/", ioutil.NopCloser(strings.NewReader("12345")))
-		pkg.TryBufRead(r)
+		utils.TryBufRead(r)
 	}
 }
 
@@ -160,6 +160,6 @@ func BenchmarkTryRead(b *testing.B) {
 	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
 		r, _ := http.NewRequest(http.MethodPost, "/", ioutil.NopCloser(strings.NewReader("12345")))
-		pkg.TryRead(r)
+		utils.TryRead(r)
 	}
 }

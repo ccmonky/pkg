@@ -1,10 +1,10 @@
-package pkg_test
+package utils_test
 
 import (
 	"net/http"
 	"testing"
 
-	"github.com/ccmonky/pkg"
+	"github.com/ccmonky/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -74,8 +74,8 @@ func TestPkgPath(t *testing.T) {
 		},
 	}
 	for _, tc := range cases {
-		path := pkg.PkgPath(tc.object)
-		name := pkg.TypeName(tc.object)
+		path := utils.PkgPath(tc.object)
+		name := utils.TypeName(tc.object)
 		if path != tc.pkgPath {
 			t.Fatalf("%v should ==, got %s", tc, path)
 		}
@@ -85,19 +85,19 @@ func TestPkgPath(t *testing.T) {
 	}
 
 	alias := resourceAlias("")
-	path := pkg.PkgPath(alias)
+	path := utils.PkgPath(alias)
 	if path != "" {
 		t.Fatalf("alias pkg path should ==, got %s", path)
 	}
-	name := pkg.TypeName(alias)
+	name := utils.TypeName(alias)
 	if name != "string" {
 		t.Fatalf("alias type name should ==, got %s", name)
 	}
-	path = pkg.PkgPath(&alias)
+	path = utils.PkgPath(&alias)
 	if path != "" {
 		t.Fatalf("alias pkg path should ==, got %s", path)
 	}
-	name = pkg.TypeName(&alias)
+	name = utils.TypeName(&alias)
 	if name != "string" {
 		t.Fatalf("alias type name should ==, got %s", name)
 	}
@@ -106,10 +106,10 @@ func TestPkgPath(t *testing.T) {
 func abc() {}
 
 func TestFuncName(t *testing.T) {
-	assert.Equalf(t, "abc", pkg.FuncName(abc), "func name of abc")
-	assert.Equalf(t, "TypeName", pkg.FuncName(pkg.TypeName), "func name of pkg.TypeName")
-	assert.Equalf(t, pkgPath+".abc", pkg.PkgFuncName(abc), "func name of pkg.TypeName")
-	assert.Equalf(t, "github.com/ccmonky/pkg.TypeName", pkg.PkgFuncName(pkg.TypeName), "func name of pkg.TypeName")
+	assert.Equalf(t, "abc", utils.FuncName(abc), "func name of abc")
+	assert.Equalf(t, "TypeName", utils.FuncName(utils.TypeName), "func name of utils.TypeName")
+	assert.Equalf(t, pkgPath+".abc", utils.PkgFuncName(abc), "func name of utils.TypeName")
+	assert.Equalf(t, "github.com/ccmonky/utils.TypeName", utils.PkgFuncName(utils.TypeName), "func name of utils.TypeName")
 }
 
 type iface interface {
@@ -117,7 +117,7 @@ type iface interface {
 }
 
 func TestInterfaceName(t *testing.T) {
-	assert.Equalf(t, "iface", pkg.InterfaceName((*iface)(nil)), "pkg interface name")
+	assert.Equalf(t, "iface", utils.InterfaceName((*iface)(nil)), "pkg interface name")
 }
 
 var pkgPath = "github.com/ccmonky/pkg_test"

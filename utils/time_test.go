@@ -1,11 +1,11 @@
-package pkg_test
+package utils_test
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/ccmonky/pkg"
+	"github.com/ccmonky/pkg/utils"
 )
 
 func TestTime(t *testing.T) {
@@ -19,7 +19,7 @@ func TestTime(t *testing.T) {
 		t.Fatal(err)
 	}
 	//valid := now.Sub(activationTime) >= -timeSkew
-	valid := pkg.AfterEqualWithSkew(now, activationTime, timeSkew)
+	valid := utils.AfterEqualWithSkew(now, activationTime, timeSkew)
 	if !valid {
 		t.Fatal("now should >= activation time with 5 minutes skew")
 	}
@@ -28,7 +28,7 @@ func TestTime(t *testing.T) {
 		t.Fatal(err)
 	}
 	//valid = now.Sub(activationTime) >= -timeSkew
-	valid = pkg.AfterEqualWithSkew(now, activationTime, timeSkew)
+	valid = utils.AfterEqualWithSkew(now, activationTime, timeSkew)
 	if !valid {
 		t.Fatal("now should >= activation time with 5 minutes skew")
 	}
@@ -37,37 +37,37 @@ func TestTime(t *testing.T) {
 		t.Fatal(err)
 	}
 	//valid = now.Sub(activationTime) >= -timeSkew
-	valid = pkg.AfterEqualWithSkew(now, activationTime, timeSkew)
+	valid = utils.AfterEqualWithSkew(now, activationTime, timeSkew)
 	if valid {
 		t.Fatal("now should >= activation time with 5 minutes skew")
 	}
 	endTime, err := time.Parse(time.RFC3339, "2018-12-08T12:56:00+08:00")
 	// valid = now.Sub(endTime) <= timeSkew
-	valid = pkg.BeforeEqualWithSkew(now, endTime, timeSkew)
+	valid = utils.BeforeEqualWithSkew(now, endTime, timeSkew)
 	if !valid {
 		t.Fatal("now should <= end time with 5 minuts skew")
 	}
 	endTime, err = time.Parse(time.RFC3339, "2018-12-08T12:54:00+08:00")
 	//valid = now.Sub(endTime) <= timeSkew
-	valid = pkg.BeforeEqualWithSkew(now, endTime, timeSkew)
+	valid = utils.BeforeEqualWithSkew(now, endTime, timeSkew)
 	if valid {
 		t.Fatal("now should <= end time with 5 minuts skew")
 	}
 	endTime, err = time.Parse(time.RFC3339, "2018-12-08T13:01:00+08:00")
 	//valid = now.Sub(endTime) <= timeSkew
-	valid = pkg.BeforeEqualWithSkew(now, endTime, timeSkew)
+	valid = utils.BeforeEqualWithSkew(now, endTime, timeSkew)
 	if !valid {
 		t.Fatal("now should <= end time with 5 minuts skew")
 	}
 }
 
 type demo struct {
-	Elapsed pkg.Duration `json:"elapsed"`
+	Elapsed utils.Duration `json:"elapsed"`
 }
 
 func TestDuration(t *testing.T) {
 	msgEnc, err := json.Marshal(&demo{
-		Elapsed: pkg.Duration{time.Second * 5},
+		Elapsed: utils.Duration{time.Second * 5},
 	})
 	if err != nil {
 		t.Fatal(err)
