@@ -9,13 +9,17 @@ type Error struct {
 	Cause
 }
 
-func New(err any) Cause {
+func New[T ~struct{ Cause }](err any) T {
+	var e Error
 	switch err := err.(type) {
+	// case Cause:
+	// 	e = Error{err}
 	case error:
-		return wrapper{err}
+		e = Error{wrapper{err}}
 	default:
-		return wrapper{fmt.Errorf("%v", err)}
+		e = Error{wrapper{fmt.Errorf("%v", err)}}
 	}
+	return T(e)
 }
 
 type Cause interface {

@@ -24,8 +24,8 @@ func (w errorWrapper) Error() string {
 func TestIsError(t *testing.T) {
 	type NotFoundError pkgerrors.Error
 	type AlreadyExistsError pkgerrors.Error
-	errNfe := NotFoundError{pkgerrors.New("xxx not found")}
-	errAee := AlreadyExistsError{pkgerrors.New("xxx already exists")}
+	errNfe := pkgerrors.New[NotFoundError]("xxx not found")
+	errAee := pkgerrors.New[AlreadyExistsError]("xxx already exists")
 	assert.Equalf(t, errNfe.Error(), "xxx not found", "not found error")
 	assert.Equalf(t, errAee.Error(), "xxx already exists", "already exists error")
 	assert.Truef(t, pkgerrors.Is[NotFoundError](errNfe), "errNfe is notfound")
@@ -53,8 +53,8 @@ func TestIsError(t *testing.T) {
 	assert.Truef(t, pkgerrors.Is[AlreadyExistsError](errAeeW), "errAeeW is already")
 	assert.Truef(t, !pkgerrors.Is[NotFoundError](errAeeW), "errAeeW is not already")
 	type XXXError pkgerrors.Error
-	errXXX := XXXError{pkgerrors.New("xxx error")}
-	errNfXXX := NotFoundError{pkgerrors.New(errXXX)}
+	errXXX := pkgerrors.New[XXXError]("xxx error")
+	errNfXXX := pkgerrors.New[NotFoundError](errXXX)
 	assert.Truef(t, pkgerrors.Is[NotFoundError](errNfXXX), "errnfxxx is notfound error")
 	assert.Truef(t, pkgerrors.Is[XXXError](errNfXXX), "errnfxxx is also xxx error")
 	assert.Truef(t, !pkgerrors.Is[AlreadyExistsError](errNfXXX), "errnfxxx is not already exists error")
