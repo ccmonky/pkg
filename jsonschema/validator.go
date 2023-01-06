@@ -128,7 +128,7 @@ type ValidateFailedError struct {
 	label string
 }
 
-func NewValidateFailedErrorError(label string) *ValidateFailedError {
+func NewValidateFailedError(label string) *ValidateFailedError {
 	return &ValidateFailedError{
 		label: label,
 	}

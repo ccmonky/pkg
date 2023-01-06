@@ -163,7 +163,7 @@ func DefaultValidate(schema, data []byte) error {
 	for _, desc := range result.Errors() {
 		detail += fmt.Sprintf("- %s\n", desc)
 	}
-	return jsonschema.NewValidateFailedErrorError(detail)
+	return jsonschema.NewValidateFailedError(detail)
 }
 
 func BenchmarkRegisterTypeMultiple(b *testing.B) {
