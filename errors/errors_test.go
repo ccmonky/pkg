@@ -1,6 +1,7 @@
 package errors_test
 
 import (
+	"errors"
 	"testing"
 
 	pkgerrors "github.com/ccmonky/pkg/errors"
@@ -31,6 +32,12 @@ func TestIsError(t *testing.T) {
 	assert.Truef(t, !pkgerrors.Is[AlreadyExistsError](errNfe), "errNfe is not already existsnotfound")
 	assert.Truef(t, pkgerrors.Is[AlreadyExistsError](errAee), "errAee is already")
 	assert.Truef(t, !pkgerrors.Is[NotFoundError](errAee), "errAee is not notfound")
+	errNfe2 := NotFoundError{errorWrapper{
+		error: errors.New("hahaha"),
+		msg:   "wrapper",
+	}}
+	assert.Truef(t, pkgerrors.Is[NotFoundError](errNfe2), "errNfe2 is notfound")
+	assert.Truef(t, !pkgerrors.Is[AlreadyExistsError](errNfe2), "errNfe2 is not already existsnotfound")
 	errNfeW := errorWrapper{
 		error: errNfe,
 		msg:   "wrapper",
