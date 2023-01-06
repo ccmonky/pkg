@@ -89,7 +89,7 @@ func TestValidator(t *testing.T) {
 			"B": 1
 		}
 	}`)
-	err = validator.Validate(&tt, data)
+	err = validator.Validate(tt, data)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,19 +98,11 @@ func TestValidator(t *testing.T) {
 type DefaultRetager struct{}
 
 func (rt DefaultRetager) Convert(p interface{}, maker jsonschema.TagMaker) interface{} {
-	return retag.Convert(indirect(p), maker)
+	return retag.Convert(p, maker)
 }
 
 func (rt DefaultRetager) ConvertAny(p interface{}, maker jsonschema.TagMaker) interface{} {
-	return retag.ConvertAny(indirect(p), maker)
-}
-
-func indirect(v interface{}) interface{} {
-	rtype := reflect.TypeOf(v)
-	if rtype.Kind() != reflect.Ptr {
-		return reflect.New(rtype).Interface()
-	}
-	return v
+	return retag.ConvertAny(p, maker)
 }
 
 func DeleteJsonOmitemptyMarker() retag.TagMaker {

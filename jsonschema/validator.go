@@ -89,7 +89,7 @@ func (v *Validator) Validate(value any, data []byte) error {
 		tagMaker = tm
 	}
 	if v.retag != nil && tagMaker != nil {
-		modified := v.retag.ConvertAny(value, tagMaker)
+		modified := v.retag.ConvertAny(indirect(value), tagMaker)
 		rtypeModified = reflect.TypeOf(modified)
 	}
 	schemaBytes, err := v.generator.ReflectFromType(rtypeModified)
@@ -98,6 +98,14 @@ func (v *Validator) Validate(value any, data []byte) error {
 	}
 	v.schemas.Store(rtype, schemaBytes)
 	return v.validate(schemaBytes, data)
+}
+
+func indirect(v interface{}) interface{} {
+	rtype := reflect.TypeOf(v)
+	if rtype.Kind() != reflect.Ptr {
+		return reflect.New(rtype).Interface()
+	}
+	return v
 }
 
 // refer to `github.com/maseer/retag`
