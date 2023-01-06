@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"sync"
@@ -117,8 +118,31 @@ type Generator interface {
 	ReflectFromType(t reflect.Type) (schema, error)
 }
 
+type schema = []byte
+
 // ValidateFunc validate json `data` against json `schema`
 // refer to `github.com/xeipuuv/gojsonschema`
 type ValidateFunc func(schema, data []byte) error
 
-type schema = []byte
+type ValidateFailedError struct {
+	label string
+}
+
+func NewValidateFailedErrorError(label string) *ValidateFailedError {
+	return &ValidateFailedError{
+		label: label,
+	}
+}
+
+// Error implements the error interface.
+func (e *ValidateFailedError) Error() string {
+	return "jsonschema: " + e.label
+}
+
+func IsValidateFailedError(err error) bool {
+	if err == nil {
+		return false
+	}
+	var e *ValidateFailedError
+	return errors.As(err, &e)
+}

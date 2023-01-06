@@ -2,7 +2,6 @@ package jsonschema_test
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -26,15 +25,6 @@ type TestType struct {
 }
 
 func TestValidator(t *testing.T) {
-	validator, err := jsonschema.NewValidator(
-		jsonschema.WithRetag(DefaultRetager{}),
-		jsonschema.WithTagMaker(DeleteJsonOmitemptyMarker()),
-		jsonschema.WithGenerator(DefaultGenerator{&jsgen.Reflector{}}),
-		jsonschema.WithValidateFunc(DefaultValidate),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
 	tt := TestType{}
 	data := []byte(`{
 		"Uint": 1,
@@ -42,7 +32,7 @@ func TestValidator(t *testing.T) {
 			"C": 2
 		}
 	}`)
-	err = validator.Validate(&tt, data)
+	err := validator.Validate(&tt, data)
 	if err == nil {
 		// - (root): int is required
 		// - (root): String is required
@@ -51,6 +41,9 @@ func TestValidator(t *testing.T) {
 		// - Embed: B is required
 		// - Embed: Additional property C is not allowed
 		t.Fatal("should error")
+	}
+	if !jsonschema.IsValidateFailedError(err) {
+		t.Fatal(err)
 	}
 	schemas := validator.Schemas()
 	// {
@@ -138,12 +131,10 @@ func (m deleteJsonOmitemptyMarker) MakeTag(t reflect.Type, fieldIndex int) refle
 	return reflect.StructTag(fmt.Sprintf(`json:"%s"`, jsonTag))
 }
 
-type DefaultGenerator struct {
-	Reflector *jsgen.Reflector
-}
+type DefaultGenerator struct{}
 
 func (g DefaultGenerator) Reflect(v interface{}) ([]byte, error) {
-	schema := g.Reflector.Reflect(v)
+	schema := jsgen.Reflect(v)
 	data, err := json.Marshal(schema)
 	if err != nil {
 		return nil, err
@@ -152,7 +143,7 @@ func (g DefaultGenerator) Reflect(v interface{}) ([]byte, error) {
 }
 
 func (g DefaultGenerator) ReflectFromType(t reflect.Type) ([]byte, error) {
-	schema := g.Reflector.ReflectFromType(t)
+	schema := jsgen.ReflectFromType(t)
 	data, err := json.Marshal(schema)
 	if err != nil {
 		return nil, err
@@ -163,7 +154,7 @@ func (g DefaultGenerator) ReflectFromType(t reflect.Type) ([]byte, error) {
 func DefaultValidate(schema, data []byte) error {
 	result, err := gojsonschema.Validate(gojsonschema.NewBytesLoader(schema), gojsonschema.NewBytesLoader(data))
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 	if result.Valid() {
 		return nil
@@ -172,5 +163,39 @@ func DefaultValidate(schema, data []byte) error {
 	for _, desc := range result.Errors() {
 		detail += fmt.Sprintf("- %s\n", desc)
 	}
-	return errors.New(detail)
+	return jsonschema.NewValidateFailedErrorError(detail)
+}
+
+func BenchmarkRegisterTypeMultiple(b *testing.B) {
+	data := []byte(`{
+		"int": 0,
+		"String": "",
+		"Embed": {
+			"a": "",
+			"B": 1
+		}
+	}`)
+	tt := TestType{}
+	b.ResetTimer()
+	for n := 0; n < b.N; n++ {
+		err := validator.Validate(&tt, data)
+		if err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+var validator *jsonschema.Validator
+
+func init() {
+	var err error
+	validator, err = jsonschema.NewValidator(
+		jsonschema.WithRetag(DefaultRetager{}),
+		jsonschema.WithTagMaker(DeleteJsonOmitemptyMarker()),
+		jsonschema.WithGenerator(DefaultGenerator{}),
+		jsonschema.WithValidateFunc(DefaultValidate),
+	)
+	if err != nil {
+		panic(err)
+	}
 }
