@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
+	"sync"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -80,3 +81,7 @@ func Source() string {
 	sourceCache.Store(path, pkgs[0].PkgPath)
 	return pkgs[0].PkgPath
 }
+
+var (
+	sourceCache sync.Map // map[path]pkgPath
+)
