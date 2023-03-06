@@ -2,8 +2,8 @@ package utils
 
 import "reflect"
 
-// IsNull 判断对象是否为空
-func IsNull(value reflect.Value) bool {
+// IsZero 判断对象是否为零值
+func IsZero(value reflect.Value) bool {
 	switch value.Kind() {
 	case reflect.String:
 		return value.Len() == 0
@@ -19,4 +19,16 @@ func IsNull(value reflect.Value) bool {
 		return value.IsNil()
 	}
 	return reflect.DeepEqual(value.Interface(), reflect.Zero(value.Type()).Interface())
+}
+
+// IsNil 判断是否为nil
+func IsNil(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		return reflect.ValueOf(i).IsNil()
+	}
+	return false
 }
