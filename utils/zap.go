@@ -32,5 +32,5 @@ func (j *objectJsonMarshaler) MarshalJSON() ([]byte, error) {
 
 // ZapRequestID 获取http请求ID的zao.Field
 func ZapRequestID(r *http.Request) zap.Field {
-	return zap.String(RequestIDName, GetReqID(r.Context()))
+	return zap.String(RequestIDName, GetRequestID(r.Context()))
 }

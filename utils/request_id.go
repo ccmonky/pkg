@@ -10,8 +10,8 @@ type ctxKeyRequestID int
 // RequestIDKey is the key that holds th unique request ID in a request context.
 const RequestIDKey ctxKeyRequestID = 0
 
-// GetReqID 用于从context中提取请求ID
-func GetReqID(ctx context.Context) string {
+// GetRequestID 用于从context中提取请求ID
+func GetRequestID(ctx context.Context) string {
 	if ctx == nil {
 		return "-"
 	}

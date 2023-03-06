@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"testing"
 
-	"gitlab.alibaba-inc.com/t3/pkg/eigenkey"
+	"github.com/ccmonky/pkg/eigenkey"
 )
 
 func TestURLValues(t *testing.T) {
@@ -21,7 +21,7 @@ func TestURLValues(t *testing.T) {
 }
 
 func TestHash(t *testing.T) {
-	key := "http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c="
+	key := "http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c="
 	var h string
 	h = eigenkey.MD5(key)
 	if h != "ab582e91ea63f409a47825f388d0422f" {
@@ -44,9 +44,9 @@ func TestDefaultHTTPEigenkeyFunc(t *testing.T) {
 	if key != "" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
-	info.Path = "/ws/authcar/jwks"
+	info.Path = "/ws/xxxcar/jwks"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "/ws/authcar/jwks" {
+	if key != "/ws/xxxcar/jwks" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.UseArguments = []string{"b", "a"}
@@ -55,37 +55,37 @@ func TestDefaultHTTPEigenkeyFunc(t *testing.T) {
 		"b": []string{"5"},
 	}
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "/ws/authcar/jwks?b=5&a=1&a=2" {
+	if key != "/ws/xxxcar/jwks?b=5&a=1&a=2" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.Scheme = "http"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http:///ws/authcar/jwks?b=5&a=1&a=2" {
+	if key != "http:///ws/xxxcar/jwks?b=5&a=1&a=2" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
-	info.Host = "authcar.amap.test"
+	info.Host = "xxxcar.xxx.test"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2" {
+	if key != "http://xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
-	info.Username = "yunfei.liu"
+	info.Username = "yflau"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://yunfei.liu@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2" {
+	if key != "http://yflau@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.Password = "123456"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2" {
+	if key != "http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.Fragment = "dummy"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy" {
+	if key != "http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.Proto = "HTTP/1.1"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1" {
+	if key != "http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.UseHeaders = []string{"d", "c"}
@@ -94,16 +94,16 @@ func TestDefaultHTTPEigenkeyFunc(t *testing.T) {
 		"d": []string{"hello", "world"},
 	}
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
+	if key != "http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	info.Method = "POST"
 	key = eigenkey.DefaultHTTPEigenkeyFunc("", info)
-	if key != "POST:http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
+	if key != "POST:http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	key = eigenkey.DefaultHTTPEigenkeyFunc("tproxy", info)
-	if key != "tproxy:POST:http://yunfei.liu:123456@authcar.amap.test/ws/authcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
+	if key != "tproxy:POST:http://yflau:123456@xxxcar.xxx.test/ws/xxxcar/jwks?b=5&a=1&a=2#dummy:HTTP/1.1:d=hello&d=world&c=hi&c=" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	key = eigenkey.DefaultHTTPEigenkeyFunc("tproxy", info, []eigenkey.KeyPostFunc{eigenkey.MD5}...)
@@ -119,13 +119,13 @@ func TestDefaultHTTPEigenkeyFunc(t *testing.T) {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 	key = eigenkey.DefaultHTTPEigenkeyFunc("tproxy", info, []eigenkey.KeyPostFunc{eigenkey.Prefix64}...)
-	if key != "tproxy:POST:http://yunfei.liu:123456@authcar.amap.test/ws/authca" {
+	if key != "tproxy:POST:http://yflau:123456@xxxcar.xxx.test/ws/authca" {
 		t.Fatalf("shoudl ==, got %s", key)
 	}
 }
 
 func TestRequestKeyGenerator(t *testing.T) {
-	url := "https://yfliu:123@apistore.amap.com/ws/autosdk/login?a=1&z=2&b=3#fragment"
+	url := "https://yfliu:123@xxxstore.xxx.com/ws/xxxsdk/login?a=1&z=2&b=3#fragment"
 	r, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -140,7 +140,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "/ws/autosdk/login" {
+	if k != "/ws/xxxsdk/login" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -149,7 +149,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "https:///ws/autosdk/login" {
+	if k != "https:///ws/xxxsdk/login" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -159,7 +159,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "/ws/autosdk/login#fragment" {
+	if k != "/ws/xxxsdk/login#fragment" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -169,7 +169,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "GET:/ws/autosdk/login" {
+	if k != "GET:/ws/xxxsdk/login" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -179,7 +179,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "//apistore.amap.com/ws/autosdk/login" {
+	if k != "//xxxstore.xxx.com/ws/xxxsdk/login" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -190,7 +190,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "https://apistore.amap.com/ws/autosdk/login" {
+	if k != "https://xxxstore.xxx.com/ws/xxxsdk/login" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -201,7 +201,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "/ws/autosdk/login?a=1&b=3" {
+	if k != "/ws/xxxsdk/login?a=1&b=3" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -213,7 +213,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "/ws/autosdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
+	if k != "/ws/xxxsdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -222,7 +222,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "//yfliu@/ws/autosdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
+	if k != "//yfliu@/ws/xxxsdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -231,7 +231,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "//yfliu:123@/ws/autosdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
+	if k != "//yfliu:123@/ws/xxxsdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -240,7 +240,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "https://yfliu:123@/ws/autosdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
+	if k != "https://yfliu:123@/ws/xxxsdk/login?z=2&a=1:abc-324=xff-rt&xxx-abc=bearer+123" {
 		t.Errorf("should ==, got %s", k)
 	}
 
@@ -249,7 +249,7 @@ func TestRequestKeyGenerator(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if k != "https://yfliu:123@/ws/autosdk/login?z=2&a=1#fragment:abc-324=xff-rt&xxx-abc=bearer+123" {
+	if k != "https://yfliu:123@/ws/xxxsdk/login?z=2&a=1#fragment:abc-324=xff-rt&xxx-abc=bearer+123" {
 		t.Errorf("should ==, got %s", k)
 	}
 }
