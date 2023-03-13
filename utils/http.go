@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -69,6 +70,26 @@ func TryBufReadByte(r *http.Request) (b byte, err error) {
 	}
 	r.Body = io.NopCloser(br)
 	return
+}
+
+var methods = map[string]struct{}{
+	http.MethodGet:     struct{}{},
+	http.MethodHead:    struct{}{},
+	http.MethodPost:    struct{}{},
+	http.MethodPut:     struct{}{},
+	http.MethodPatch:   struct{}{},
+	http.MethodDelete:  struct{}{},
+	http.MethodConnect: struct{}{},
+	http.MethodOptions: struct{}{},
+	http.MethodTrace:   struct{}{},
+}
+
+// IsHTTPMethodValid test if method is valid http method
+func IsHTTPMethodValid(method string) bool {
+	if _, ok := methods[strings.ToUpper(method)]; ok {
+		return true
+	}
+	return false
 }
 
 var (

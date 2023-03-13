@@ -10,10 +10,11 @@ import (
 	"strings"
 )
 
-// ErrNotImplemented 未实现错误
+// ErrNotImplemented not implement error
 var ErrNotImplemented = errors.New("not implemented")
 
-// EncodeFormToBody 将r.Form回填到r.Body，一般用于反代，目前仅支持PostForm，Multipart未实现
+// EncodeFormToBody refill `r.Form` into `r.Body`, usually used in reverse proxy
+// Limit: support only `PostForm` not, not implement for `Multipart`
 func EncodeFormToBody(r *http.Request) error {
 	ct := r.Header.Get("Content-Type")
 	if ct == "" {
@@ -29,14 +30,14 @@ func EncodeFormToBody(r *http.Request) error {
 	return encodePostFormToBodyWithContentType(r, &ct)
 }
 
-// EncodePostFormToBody 判断是否执行了request.ParseForm，如果执行了那么执行恢复request.Body，一般用于反向代理
+// EncodePostFormToBody detect if has executed `request.ParseForm`, if yes then refill the `r.Body`
 func EncodePostFormToBody(r *http.Request) error {
 	return encodePostFormToBodyWithContentType(r, nil)
 }
 
 func encodePostFormToBodyWithContentType(r *http.Request, contentType *string) error {
 	if r.Method != http.MethodPost && r.Method != http.MethodPut && r.Method != http.MethodPatch {
-		// NOTE：r.ParseForm只会对Post、Put和Patch方法执行parsePostForm方法，如果不是这三种方法，可以不必考虑！
+		// NOTE: since r.ParseForm only applied on Post, Put and Patch methods, so ignore others.
 		return nil
 	}
 	ct, err := parseContentType(r, contentType)
@@ -44,7 +45,7 @@ func encodePostFormToBodyWithContentType(r *http.Request, contentType *string) e
 		return err
 	}
 	if ct != "application/x-www-form-urlencoded" {
-		// NOTE: ParseForm中的parsePostForm方法不会执行，因此也不必恢复Body！
+		// NOTE: no need to refill body since `parsePostForm`(in `ParseForm`) not executed.
 		return nil
 	}
 	if r.PostForm == nil && r.Body != nil && !IsBodyDrained(r) {
