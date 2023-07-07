@@ -34,4 +34,30 @@ func TestZapFields(t *testing.T) {
 	r = r.WithContext(context.WithValue(r.Context(), logkit.RequestIDKey, "abc"))
 	logger.Info("request_id", logkit.ZapReqID(r))
 	assert.Equalf(t, "abc", gjson.Get(buf.String(), "request_id").String(), "request_id")
+
+	n := 3
+	buf.Reset()
+	logger.Info("", logkit.ZapAnyN("anyn", 10000, n))
+	assert.Equalf(t, int64(10000), gjson.Get(buf.String(), "anyn").Int(), "int")
+
+	buf.Reset()
+	logger.Info("", logkit.ZapAnyN("anyn", []int{10000}, n))
+	assert.Equalf(t, "[10...", gjson.Get(buf.String(), "anyn").String(), "int-array")
+
+	buf.Reset()
+	logger.Info("", logkit.ZapAnyN("anyn", []string{"10000"}, n))
+	assert.Equalf(t, "[10...", gjson.Get(buf.String(), "anyn").String(), "string-array")
+
+	buf.Reset()
+	logger.Info("", logkit.ZapAnyN("anyn", "10000", n))
+	assert.Equalf(t, "100...", gjson.Get(buf.String(), "anyn").String(), "string")
+
+	buf.Reset()
+	sp := "10000"
+	logger.Info("", logkit.ZapAnyN("anyn", &sp, n))
+	assert.Equalf(t, "100...", gjson.Get(buf.String(), "anyn").String(), "string-pointer")
+
+	buf.Reset()
+	logger.Info("", logkit.ZapAnyN("anyn", []byte("10000"), n))
+	assert.Equalf(t, "100...", gjson.Get(buf.String(), "anyn").String(), "bytes")
 }

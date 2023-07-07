@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // RequestIDName field name of request id in log
@@ -57,4 +59,41 @@ func (j *objectJsonMarshaler) MarshalJSON() ([]byte, error) {
 		return nil, fmt.Errorf("json marshaling failed: %w", err)
 	}
 	return bytes, nil
+}
+
+// ZapAnyN like zap.Any, but limit to n bytes for non-primitive type values
+func ZapAnyN(key string, value interface{}, n int) zap.Field {
+	switch val := value.(type) {
+	case zapcore.ObjectMarshaler, zapcore.ArrayMarshaler, []bool, []complex128, []complex64, []float64, []float32,
+		[]int, []int64, []int32, []int16, []int8, []string, []uint, []uint64, []uint32, []uint16, []uintptr, []time.Time,
+		[]time.Duration, []error:
+		s := fmt.Sprintf("%v", value)
+		if len(s) > n {
+			return zap.String(key, s[:n]+"...")
+		}
+		return zap.Any(key, value)
+	case string:
+		if len(val) > n {
+			return zap.String(key, val[:n]+"...")
+		}
+		return zap.String(key, val)
+	case *string:
+		if val == nil {
+			return zap.String(key, "<nil>")
+		}
+		if len(*val) > n {
+			return zap.String(key, (*val)[:n]+"...")
+		}
+		return zap.String(key, *val)
+	case []byte:
+		if val == nil {
+			return zap.ByteString(key, []byte("<nil>"))
+		}
+		if len(val) > n {
+			return zap.ByteString(key, append(val[:n], []byte("...")...))
+		}
+		return zap.ByteString(key, val)
+	default:
+		return zap.Any(key, value)
+	}
 }
