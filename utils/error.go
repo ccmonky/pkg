@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 // PanicIfError panic if err != nil
 func PanicIfError(err error) {
