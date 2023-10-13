@@ -3,6 +3,7 @@ module github.com/ccmonky/pkg
 go 1.18
 
 require (
+	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17
 	github.com/ccmonky/log v0.0.0-20230122031221-519c86d59a22
 	github.com/ccmonky/typemap v0.3.0
 	github.com/go-sql-driver/mysql v1.7.0
@@ -22,7 +23,6 @@ require (
 )
 
 require (
-	cdr.dev/slog v1.4.2-0.20221206192828-e4803b10ae17 // indirect
 	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/alecthomas/chroma v0.10.0 // indirect
 	github.com/alecthomas/chroma/v2 v2.5.0 // indirect

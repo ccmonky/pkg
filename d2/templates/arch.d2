@@ -1,0 +1,138 @@
+grid-columns: 1
+
+client: 客户端 {
+  tooltip: API网关
+}
+
+app-gateway: {
+  label: "app-gateway@https://gateway.example.com@owner"
+  link: https://baidu.com
+  grid-columns: 3
+  cluster-beijing: {
+    node1
+    node2
+    redis-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+      style: {
+        stroke-dash: 1
+      }
+    }
+    rdb-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+      style: {
+        stroke-dash: 1
+      }
+    }
+    node1 -> redis-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+    node2 -> redis-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+    redis-hangzhou -> rdb-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+  }
+  cluster-hangzhou: {
+    node1
+    node2
+    redis-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+    }
+    rdb-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+    }
+    node1 -> redis-hangzhou
+    node2 -> redis-hangzhou
+    redis-hangzhou -> rdb-hangzhou
+  }
+
+  cluster-shenzhen: {
+    node1
+    node2
+    redis-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+      style: {
+        stroke-dash: 1
+      }
+    }
+    rdb-hangzhou: {
+      shape: cylinder
+      link: https://baidu.com
+      style: {
+        stroke-dash: 1
+      }
+    }
+    node1 -> redis-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+    node2 -> redis-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+    redis-hangzhou -> rdb-hangzhou: {
+      style: {
+        stroke-dash: 1
+      }
+    }
+  }
+  cluster-beijing.redis-hangzhou -> cluster-hangzhou.redis-hangzhou
+  cluster-beijing.rdb-hangzhou -> cluster-hangzhou.rdb-hangzhou
+  cluster-shenzhen.redis-hangzhou -> cluster-hangzhou.redis-hangzhou
+  cluster-shenzhen.rdb-hangzhou -> cluster-hangzhou.rdb-hangzhou
+}
+
+client -> app-gateway: http
+
+upstream: {
+  grid-columns: 3
+  app-a@owner: {
+    info: |md
+      - http://domain: a.vs.exmaple.com
+    |
+    link: https://baidu.com
+  }
+
+  app-b@owner: {
+    info: |md
+      - http://b.vs.exmaple.com
+    |
+    link: https://baidu.com
+  }
+
+  app-c@owner: {
+    info: |md
+      - http://c.vs.exmaple.com
+    |
+    link: https://baidu.com
+  }
+  app-d@owner: {
+    info: |md
+      - hsf://d.vs.exmaple.com
+    |
+    link: https://baidu.com
+  }
+  app-e@owner: {
+    info: |md
+      - grpc://e.vs.exmaple.com
+    |
+    link: https://baidu.com
+  }
+  "..."
+}
+
+app-gateway -> upstream

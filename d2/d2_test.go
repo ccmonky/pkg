@@ -9,7 +9,7 @@ import (
 )
 
 func TestRender(t *testing.T) {
-	svg, err := d2.Render(context.Background())
+	svg, err := d2.Render(context.Background(), "templates/arch.d2")
 	if err != nil {
 		t.Fatal(err)
 	}
